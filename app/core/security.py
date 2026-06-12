@@ -1,12 +1,15 @@
 from datetime import datetime, timedelta
+import bcrypt
 from jose import JWTError, jwt
-from passlib.context import CryptContext
 
 SECRET_KEY = "starlance-secret-key-mora-rivera-2026"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_DAYS = 30
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+def _hash(password: str) -> str:
+    return bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
+
 
 USERS = {
     "admin": {
@@ -15,7 +18,7 @@ USERS = {
         "display_name": "Admin",
         "role": "admin",
         "avatar": "🛡️",
-        "hashed_password": pwd_context.hash("admin2026"),
+        "hashed_password": _hash("admin2026"),
     },
     "gabriel": {
         "id": "user_gabriel",
@@ -23,7 +26,7 @@ USERS = {
         "display_name": "Gabriel",
         "role": "kid",
         "avatar": "⚡",
-        "hashed_password": pwd_context.hash("gabriel2026"),
+        "hashed_password": _hash("gabriel2026"),
     },
     "daniela": {
         "id": "user_daniela",
@@ -31,13 +34,13 @@ USERS = {
         "display_name": "Daniela",
         "role": "kid",
         "avatar": "🌟",
-        "hashed_password": pwd_context.hash("daniela2026"),
+        "hashed_password": _hash("daniela2026"),
     },
 }
 
 
 def verify_password(plain: str, hashed: str) -> bool:
-    return pwd_context.verify(plain, hashed)
+    return bcrypt.checkpw(plain.encode(), hashed.encode())
 
 
 def create_access_token(data: dict) -> str:
