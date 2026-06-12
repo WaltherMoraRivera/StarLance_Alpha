@@ -1,0 +1,236 @@
+========================================
+PROJECT CONTEXT — STARLANCE API
+========================================
+
+1. PROJECT OVERVIEW
+-------------------
+StarLance is a REST API designed to manage household tasks using a gamified reward system.
+It is intended for families, where parents assign tasks and children earn points ("stars") by completing them.
+
+The system promotes:
+- Habit formation
+- Task accountability
+- Basic financial education through rewards
+
+----------------------------------------
+
+2. CORE CONCEPTS
+----------------
+- A family contains multiple members (parents and children)
+- Children complete tasks to earn points
+- Parents validate tasks
+- Points can be redeemed for rewards
+
+----------------------------------------
+
+3. MAIN ENTITIES
+----------------
+
+3.1 Families
+- Represents a household
+- Contains embedded members
+
+Structure:
+{
+  "_id": "fam123",
+  "name": "Family Name",
+  "members": [
+    {
+      "id": "user1",
+      "name": "Child Name",
+      "role": "child",
+      "balance": 50
+    },
+    {
+      "id": "user2",
+      "role": "parent"
+    }
+  ]
+}
+
+----------------------------------------
+
+3.2 Tasks
+- Tasks assigned to children
+
+Structure:
+{
+  "_id": "task123",
+  "title": "Clean room",
+  "points": 10,
+  "assignedTo": "user1",
+  "familyId": "fam123",
+  "status": "pending | completed | approved",
+  "type": "daily | weekly",
+  "createdAt": "date"
+}
+
+----------------------------------------
+
+3.3 Transactions
+- Record of all point changes
+
+Structure:
+{
+  "_id": "txn123",
+  "userId": "user1",
+  "type": "earn | redeem",
+  "points": 10,
+  "taskId": "optional",
+  "createdAt": "date"
+}
+
+----------------------------------------
+
+3.4 Rewards
+- Rewards that can be redeemed with points
+
+Structure:
+{
+  "_id": "reward123",
+  "familyId": "fam123",
+  "name": "Watch TV",
+  "cost": 30
+}
+
+----------------------------------------
+
+4. BUSINESS RULES
+-----------------
+
+- Tasks must be approved by a parent to grant points
+- Only users with role "parent" can approve tasks
+- Points are added only after approval
+- Redeeming rewards subtracts points
+- Balance must never go below 0 (validate before redeem)
+
+----------------------------------------
+
+5. MAIN USE CASES
+-----------------
+
+1. Create task
+2. Assign task to child
+3. Child completes task
+4. Parent approves task
+5. System adds points
+6. Child views balance
+7. Child redeems reward
+8. System deducts points
+
+----------------------------------------
+
+6. API ENDPOINTS (EXPECTED)
+---------------------------
+
+TASKS
+- POST /tasks → create task
+- GET /tasks?userId= → list tasks
+- PATCH /tasks/{id}/complete → mark completed
+
+APPROVAL
+- PATCH /approve → approve task and assign points
+
+BALANCE
+- GET /stars/{userId} → get user balance
+
+TRANSACTIONS
+- GET /transactions/{userId} → get history
+
+REWARDS
+- GET /rewards?familyId= → list rewards
+- POST /rewards/redeem → redeem reward
+
+----------------------------------------
+
+7. DATABASE DESIGN DECISIONS
+----------------------------
+
+- Use MongoDB (document-based)
+- Use embedding for family members
+- Use references for tasks and transactions
+- Optimize for read-heavy operations
+- Avoid joins
+
+----------------------------------------
+
+8. INDEXING STRATEGY
+--------------------
+
+families:
+- members.id
+
+tasks:
+- assignedTo
+- assignedTo + status
+
+transactions:
+- userId + createdAt
+
+rewards:
+- familyId
+
+----------------------------------------
+
+9. ARCHITECTURE
+---------------
+
+Layered architecture:
+
+- Router → handles HTTP requests
+- Service → business logic
+- Repository → database access
+- Database → MongoDB
+
+Flow:
+Client → Router → Service → Repository → DB
+
+----------------------------------------
+
+10. TECHNOLOGY STACK
+--------------------
+
+- FastAPI (Python)
+- MongoDB Atlas
+- Motor (async driver)
+- Pytest (testing)
+- OpenTelemetry (observability)
+
+----------------------------------------
+
+11. DEVELOPMENT RULES
+---------------------
+
+- Use async/await for all DB operations
+- Keep business logic inside services
+- Do not access DB directly from routers
+- Use Pydantic for validation
+- Keep functions small and modular
+
+----------------------------------------
+
+12. TESTING REQUIREMENTS
+------------------------
+
+- Minimum 80% coverage
+- Test:
+  - Task creation
+  - Task approval
+  - Reward redemption
+  - Balance updates
+
+----------------------------------------
+
+13. FUTURE IMPROVEMENTS
+-----------------------
+
+- JWT Authentication
+- Role-based access control
+- Notifications system
+- Mobile app integration
+- Advanced gamification
+
+----------------------------------------
+
+END OF FILE
+========================================

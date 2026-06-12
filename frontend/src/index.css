@@ -1,0 +1,92 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    @apply bg-space-900 text-slate-100 font-body;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  h1, h2, h3, h4 {
+    @apply font-display;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 px-6 rounded-xl
+           transition-all duration-200 shadow-glow hover:shadow-[0_0_30px_rgba(124,58,237,0.7)]
+           active:scale-95 select-none;
+  }
+  .btn-secondary {
+    @apply bg-space-700 hover:bg-space-600 text-slate-200 font-semibold py-3 px-6 rounded-xl
+           border border-purple-600/30 transition-all duration-200 active:scale-95 select-none;
+  }
+  .btn-success {
+    @apply bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-6 rounded-xl
+           transition-all duration-200 shadow-glow-green active:scale-95 select-none;
+  }
+  .btn-danger {
+    @apply bg-red-600 hover:bg-red-500 text-white font-bold py-2 px-4 rounded-xl
+           transition-all duration-200 active:scale-95 select-none;
+  }
+  .btn-ghost {
+    @apply text-slate-400 hover:text-slate-200 font-semibold py-2 px-4 rounded-xl
+           hover:bg-space-700 transition-all duration-200 active:scale-95 select-none;
+  }
+  .card {
+    @apply bg-space-800 border border-purple-600/20 rounded-2xl p-4 shadow-lg;
+  }
+  .card-hover {
+    @apply card hover:border-purple-500/50 hover:shadow-glow transition-all duration-200 cursor-pointer;
+  }
+  .input {
+    @apply bg-space-700 border border-space-600 focus:border-purple-500 text-slate-100
+           rounded-xl px-4 py-3 w-full outline-none transition-colors duration-200
+           placeholder:text-slate-500 font-body;
+  }
+  .badge-stars {
+    @apply inline-flex items-center gap-1 bg-gold-500/20 text-gold-400 font-bold
+           px-3 py-1 rounded-full text-sm border border-gold-500/30;
+  }
+  .badge-pending {
+    @apply inline-flex items-center gap-1 bg-amber-500/20 text-amber-400 font-semibold
+           px-3 py-1 rounded-full text-xs border border-amber-500/30;
+  }
+  .badge-approved {
+    @apply inline-flex items-center gap-1 bg-emerald-500/20 text-emerald-400 font-semibold
+           px-3 py-1 rounded-full text-xs border border-emerald-500/30;
+  }
+  .badge-rejected {
+    @apply inline-flex items-center gap-1 bg-red-500/20 text-red-400 font-semibold
+           px-3 py-1 rounded-full text-xs border border-red-500/30;
+  }
+}
+
+/* Starfield background */
+.starfield {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.star-dot {
+  position: absolute;
+  border-radius: 50%;
+  background: white;
+  animation: twinkle var(--dur, 2s) ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { @apply bg-space-900; }
+::-webkit-scrollbar-thumb { @apply bg-purple-600/50 rounded-full; }
+::-webkit-scrollbar-thumb:hover { @apply bg-purple-500/70; }
