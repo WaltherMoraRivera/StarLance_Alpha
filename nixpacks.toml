@@ -1,5 +1,5 @@
 [phases.setup]
-nixPkgs = ["python312", "nodejs_20"]
+nixPkgs = ["python312Full", "nodejs_20"]
 
 [phases.install]
 cmds = [
@@ -8,7 +8,7 @@ cmds = [
 ]
 
 [phases.build]
-cmds = ["python3 -m pip install -r requirements.txt && cd frontend && npm run build"]
+cmds = ["cd frontend && npm run build"]
 
 [start]
 cmd = "uvicorn app.main:app --host 0.0.0.0 --port $PORT --workers 1"
