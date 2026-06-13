@@ -7,7 +7,7 @@ from app.schemas.task import TaskCreate, TaskUpdate, TaskStatus
 
 def _task_helper(task) -> dict:
     return {
-        "_id": str(task["_id"]),
+        "id": str(task["_id"]),
         "title": task["title"],
         "description": task.get("description"),
         "points": task["points"],

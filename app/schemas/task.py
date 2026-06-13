@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from typing import Optional
 from datetime import datetime
 from enum import Enum
@@ -36,7 +36,7 @@ class TaskUpdate(BaseModel):
 
 
 class TaskResponse(BaseModel):
-    id: str = Field(..., alias="_id")
+    id: str
     title: str
     description: Optional[str] = None
     points: int

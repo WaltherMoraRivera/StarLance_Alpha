@@ -6,7 +6,7 @@ from app.schemas.family import FamilyCreate, FamilyUpdate
 
 def _family_helper(family) -> dict:
     return {
-        "_id": str(family["_id"]),
+        "id": str(family["_id"]),
         "name": family["name"],
         "members": family["members"],
     }

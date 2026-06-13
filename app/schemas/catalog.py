@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from typing import Optional
 
 
@@ -19,7 +19,7 @@ class CatalogTaskUpdate(BaseModel):
 
 
 class CatalogTaskResponse(BaseModel):
-    id: str = Field(..., alias="_id")
+    id: str
     name: str
     description: Optional[str] = None
     stars: int

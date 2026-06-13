@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from typing import Optional
 
 
@@ -16,7 +16,7 @@ class RewardUpdate(BaseModel):
 
 
 class RewardResponse(BaseModel):
-    id: str = Field(..., alias="_id")
+    id: str
     name: str
     description: Optional[str] = None
     cost: int

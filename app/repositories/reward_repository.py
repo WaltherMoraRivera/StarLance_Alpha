@@ -6,7 +6,7 @@ from app.schemas.reward import RewardCreate, RewardUpdate
 
 def _reward_helper(reward) -> dict:
     return {
-        "_id": str(reward["_id"]),
+        "id": str(reward["_id"]),
         "name": reward["name"],
         "description": reward.get("description"),
         "cost": reward["cost"],

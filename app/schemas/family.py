@@ -26,6 +26,6 @@ class FamilyUpdate(BaseModel):
 
 
 class FamilyResponse(BaseModel):
-    id: str = Field(..., alias="_id")
+    id: str
     name: str
     members: List[Member]

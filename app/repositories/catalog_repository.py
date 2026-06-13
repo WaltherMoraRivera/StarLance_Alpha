@@ -6,7 +6,7 @@ from app.schemas.catalog import CatalogTaskCreate, CatalogTaskUpdate
 
 def _helper(doc) -> dict:
     return {
-        "_id": str(doc["_id"]),
+        "id": str(doc["_id"]),
         "name": doc["name"],
         "description": doc.get("description"),
         "stars": doc["stars"],
