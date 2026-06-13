@@ -25,7 +25,9 @@ export default function LoginPage() {
   }, [user, navigate])
 
   useEffect(() => {
-    api.get('/auth/users').then(({ data }) => setUsers(data)).catch(() => {})
+    api.get('/auth/users')
+      .then(({ data }) => { if (Array.isArray(data)) setUsers(data) })
+      .catch(() => {})
   }, [])
 
   const handleSelect = (u) => {
@@ -66,6 +68,12 @@ export default function LoginPage() {
 
         {!selected ? (
           /* Avatar picker */
+          users.length === 0 ? (
+            <div className="flex flex-col items-center gap-4 py-10 text-slate-400">
+              <div className="text-4xl animate-float">⭐</div>
+              <p className="font-body">Conectando...</p>
+            </div>
+          ) : (
           <div className="grid grid-cols-3 gap-4">
             {users.map((u) => (
               <button
@@ -92,6 +100,7 @@ export default function LoginPage() {
               </button>
             ))}
           </div>
+          )
         ) : (
           /* Password form */
           <div className="animate-slide-up">
