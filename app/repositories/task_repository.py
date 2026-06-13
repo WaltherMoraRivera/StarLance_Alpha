@@ -15,6 +15,9 @@ def _task_helper(task) -> dict:
         "family_id": task["family_id"],
         "status": task["status"],
         "task_type": task["task_type"],
+        "task_date": task.get("task_date"),
+        "icon": task.get("icon", "⭐"),
+        "catalog_id": task.get("catalog_id"),
         "created_at": task["created_at"],
     }
 
@@ -52,7 +55,7 @@ async def create_task(task_data: TaskCreate) -> dict:
     db = get_database()
     collection = db.tasks
     task_dict = task_data.model_dump()
-    task_dict["status"] = TaskStatus.pending
+    task_dict["status"] = TaskStatus.completed
     task_dict["created_at"] = datetime.now(timezone.utc)
     result = await collection.insert_one(task_dict)
     new_task = await collection.find_one({"_id": result.inserted_id})
