@@ -45,12 +45,12 @@ app.add_middleware(
 )
 
 # API routers — must be registered BEFORE static file catch-all
-app.include_router(auth_router.router)
-app.include_router(catalog_router.router)
-app.include_router(family_router.router)
-app.include_router(task_router.router)
-app.include_router(reward_router.router)
-app.include_router(balance_router.router)
+app.include_router(auth_router.router, prefix="/api")
+app.include_router(catalog_router.router, prefix="/api")
+app.include_router(family_router.router, prefix="/api")
+app.include_router(task_router.router, prefix="/api")
+app.include_router(reward_router.router, prefix="/api")
+app.include_router(balance_router.router, prefix="/api")
 
 
 @app.get("/health", tags=["Root"])
