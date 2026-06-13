@@ -1,265 +1,233 @@
-# 🚀 StarLance API
+# ⭐ StarLance Alpha
 
-API REST para gestión de tareas domésticas gamificadas con sistema de recompensas familiares.
+Sistema gamificado de gestión de tareas del hogar para familias. Los niños seleccionan las tareas que completaron cada día, ganan estrellas cuando el admin las aprueba, y pueden canjear sus estrellas por recompensas.
 
-**Estado:** ✅ **100% Funcional** - Todos los 18 tests integrales pasando
-
-## 🧱 Stack Tecnológico
-
-| Componente | Versión | Propósito |
-|---|---|---|
-| **FastAPI** | 0.104.1 | Framework web asincrónico |
-| **Python** | 3.14.0 | Runtime |
-| **Pydantic** | 2.13.3 | Validación de datos |
-| **Motor** | 3.7.1 | Driver async para MongoDB |
-| **mongomock-motor** | 0.0.36 | Mock de MongoDB para testing |
-| **pytest** | 9.0.3 | Framework de testing |
-| **httpx** | 0.28.1 | Cliente HTTP async |
-| **Uvicorn** | 0.46.0 | Servidor ASGI |
-
-## 📋 Requisitos
-
-- Python 3.14.0+
-- pip (gestor de paquetes)
-- MongoDB (opcional - tests usan mock local)
-
-## ⚙️ Setup Rápido
-
-### 1. Clonar y Preparar
-```bash
-git clone https://github.com/WaltherMoraRivera/starlance-api.git
-cd starlance-api
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\Activate.ps1
-```
-
-### 2. Instalar Dependencias
-```bash
-pip install --upgrade pip
-pip install -r requirements.txt
-```
-
-### 3. Configurar Variables de Entorno (Opcional)
-```bash
-cp .env.example .env  # Si existe
-# Editar .env con tu configuración
-```
-
-## ▶️ Ejecutar la API
-
-### Modo Desarrollo (con recarga automática)
-```bash
-python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
-```
-
-### Modo Producción
-```bash
-python -m uvicorn app.main:app --host 0.0.0.0 --port 8000
-```
-
-**Acceso local:** `http://localhost:8000`
-
-## 📘 Documentación Interactiva
-
-Una vez que el servidor esté corriendo:
-
-- **Swagger UI:** http://localhost:8000/docs (Recomendado)
-- **ReDoc:** http://localhost:8000/redoc
-- **OpenAPI Schema:** http://localhost:8000/openapi.json
-
-Para más detalles sobre configuración local, consulta [LOCAL_SETUP.md](LOCAL_SETUP.md).
-
-## 🧪 Tests
-
-### Ejecutar Todos los Tests
-```bash
-python -m pytest -v
-```
-
-**Resultado esperado:** ✅ **18/18 tests pasando** (100% cobertura de flujos principales)
-
-### Tests Específicos
-```bash
-# Familias (CRUD)
-python -m pytest app/tests/test_families.py -v
-
-# Tareas (crear, completar, aprobar)
-python -m pytest app/tests/test_tasks.py -v
-
-# Recompensas (crear, canjear, validar balance)
-python -m pytest app/tests/test_rewards.py -v
-```
-
-### Con Cobertura
-```bash
-python -m pytest --cov=app --cov-report=html
-```
-
-## 🏗️ Arquitectura
-
-La aplicación sigue un patrón en capas limpio:
-
-```
-HTTP Request
-     ↓
-   Routers (Validación de entrada)
-     ↓
-  Services (Lógica de negocio)
-     ↓
-Repositories (Acceso a datos)
-     ↓
-  MongoDB
-```
-
-### Estructura de Directorios
-```
-app/
-├── main.py                    # Punto de entrada
-├── core/
-│   └── config.py            # Configuración
-├── db/
-│   └── mongodb.py           # Conexión a BD
-├── repositories/            # Capa de datos
-│   ├── family_repository.py
-│   ├── task_repository.py
-│   ├── reward_repository.py
-│   └── transaction_repository.py
-├── services/                # Lógica de negocio
-│   ├── balance_service.py
-│   ├── reward_service.py
-│   └── task_service.py
-├── routers/                 # Endpoints
-│   ├── family_router.py
-│   ├── task_router.py
-│   ├── reward_router.py
-│   └── balance_router.py
-├── schemas/                 # Modelos Pydantic
-│   ├── family.py
-│   ├── task.py
-│   ├── reward.py
-│   └── transaction.py
-└── tests/                   # Tests
-    ├── conftest.py
-    ├── test_families.py
-    ├── test_tasks.py
-    └── test_rewards.py
-```
-
-## 🔌 Endpoints Principales
-
-### Familias
-```
-POST   /families/              - Crear familia
-GET    /families/              - Obtener todas las familias
-GET    /families/{id}          - Obtener por ID
-PUT    /families/{id}          - Actualizar
-DELETE /families/{id}          - Eliminar
-```
-
-### Tareas
-```
-POST   /tasks/                 - Crear tarea
-GET    /tasks/{id}             - Obtener por ID
-GET    /tasks/user/{user_id}   - Obtener por usuario
-PATCH  /tasks/{id}/complete    - Marcar completada
-PATCH  /tasks/{id}/approve     - Aprobar tarea
-DELETE /tasks/{id}             - Eliminar
-```
-
-### Recompensas
-```
-POST   /rewards/               - Crear recompensa
-GET    /rewards/{id}           - Obtener por ID
-GET    /rewards/?family_id=... - Obtener por familia
-POST   /rewards/redeem         - Canjear recompensa
-DELETE /rewards/{id}           - Eliminar
-```
-
-### Balance y Transacciones
-```
-GET    /balance/{user_id}      - Obtener balance
-GET    /transactions/{user_id} - Obtener transacciones
-```
-
-## 💾 Base de Datos
-
-### Colecciones MongoDB
-- **families** - Información de familias y miembros
-- **tasks** - Tareas domésticas asignadas
-- **rewards** - Recompensas disponibles
-- **transactions** - Historial de puntos
-
-### Mapeo de Campos
-MongoDB `_id` se mapea automáticamente a través de Pydantic aliases:
-```python
-class Response(BaseModel):
-    id: str = Field(..., alias="_id")  # Mapea _id ← → id
-```
-
-## 🔍 Testing con mongomock-motor
-
-Los tests usan **mongomock-motor** (v0.0.36) para proporcionar una implementación local de MongoDB sin requerir un servidor real. Esto permite:
-
-✅ Tests rápidos y locales  
-✅ CI/CD sin dependencias externas  
-✅ Desarrollo sin MongoDB instalado  
-✅ Aislamiento entre tests
-
-## 📊 Estado del Proyecto
-
-Consulta [PROJECT_STATUS.md](PROJECT_STATUS.md) para:
-- Tareas completadas
-- Problemas resueltos
-- Stack tecnológico detallado
-- Próximos pasos sugeridos
-
-## 🚀 Próximos Pasos
-
-### Nuevas Funcionalidades
-- [ ] Autenticación JWT
-- [ ] Control de acceso basado en roles (RBAC)
-- [ ] Notificaciones en tiempo real
-- [ ] Integración móvil
-- [ ] Gamificación avanzada (insignias, niveles)
-
-### Infraestructura
-- [ ] CI/CD con GitHub Actions
-- [ ] Logging estructurado
-- [ ] Monitoring (Prometheus/Grafana)
-- [ ] Caching con Redis
-- [ ] Índices de BD optimizados
-
-## 🤝 Contribución
-
-1. Fork el repositorio
-2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
-3. Commit tus cambios (`git commit -m 'Add AmazingFeature'`)
-4. Push a la rama (`git push origin feature/AmazingFeature`)
-5. Abre un Pull Request
-
-## ⚠️ Troubleshooting
-
-### "ModuleNotFoundError: No module named 'app'"
-Asegúrate de estar en el directorio raíz del proyecto con el entorno virtual activado.
-
-### "Address already in use"
-El puerto 8000 está ocupado. Usa: `--port 8001`
-
-### Tests fallando
-Instala mongomock-motor: `pip install mongomock-motor>=0.0.36`
-
-Para más soluciones, consulta [LOCAL_SETUP.md](LOCAL_SETUP.md#-troubleshooting).
-
-## 📄 Licencia
-
-Este proyecto está bajo licencia MIT. Ver [LICENSE](LICENSE) para más detalles.
-
-## 📞 Contacto
-
-Para preguntas o sugerencias, abre un issue en GitHub o contacta al equipo de desarrollo.
+**Estado:** ✅ **v1.0 en producción**
+**URL:** [starlancealpha-production.up.railway.app](https://starlancealpha-production.up.railway.app)
 
 ---
 
-**Última actualización:** 29 de Abril de 2026  
-**Versión:** 1.0.0  
-**Estado de Tests:** ✅ 18/18 Pasando
+## ✨ Funcionalidades
+
+### Para los niños (Gabriel y Daniela)
+- Login con avatar estilo Netflix + contraseña
+- Seleccionar tareas completadas (hoy y ayer)
+- Ver estrellas acumuladas e historial completo
+- Canjear estrellas por recompensas
+
+### Para el admin (papá/mamá)
+- Aprobar o rechazar tareas enviadas por los niños
+- Gestionar el catálogo de tareas (crear, editar, activar/desactivar, eliminar)
+- Gestionar el catálogo de recompensas
+- Ajustar estrellas manualmente a cada niño
+- Ver el balance de estrellas en tiempo real
+
+---
+
+## 🧱 Stack
+
+| Capa | Tecnología |
+|---|---|
+| **Backend** | FastAPI + Python 3.12 |
+| **Base de datos** | MongoDB Atlas (Motor async) |
+| **Autenticación** | JWT (python-jose) + bcrypt |
+| **Frontend** | React 18 + Vite + Tailwind CSS |
+| **Deploy** | Railway (Docker) |
+
+---
+
+## 🚀 Setup local
+
+### Requisitos
+- Python 3.12+
+- Node.js 20+
+- MongoDB local o Atlas
+
+### 1. Clonar
+```bash
+git clone https://github.com/WaltherMoraRivera/StarLance_Alpha.git
+cd StarLance_Alpha
+```
+
+### 2. Backend
+```bash
+python -m venv venv
+venv\Scripts\activate        # Windows
+# source venv/bin/activate   # Mac/Linux
+pip install -r requirements.txt
+```
+
+### 3. Frontend
+```bash
+cd frontend
+npm install --legacy-peer-deps
+cd ..
+```
+
+### 4. Variables de entorno
+Crea un archivo `.env` en la raíz:
+```env
+MONGODB_URL=mongodb://localhost:27017
+DATABASE_NAME=starlance
+SECRET_KEY=tu-clave-secreta-aqui
+ENVIRONMENT=development
+```
+
+### 5. Ejecutar
+```bash
+# Terminal 1 — Backend
+uvicorn app.main:app --reload --port 8000
+
+# Terminal 2 — Frontend
+cd frontend && npm run dev
+```
+
+Abre `http://localhost:5173` en el navegador.
+
+---
+
+## 👤 Usuarios por defecto
+
+| Usuario | Contraseña | Rol |
+|---|---|---|
+| admin | admin2026 | Admin (padre) |
+| gabriel | gabriel2026 | Niño |
+| daniela | daniela2026 | Niña |
+
+---
+
+## 📁 Estructura del proyecto
+
+```
+StarLance_Alpha/
+├── app/                        # Backend FastAPI
+│   ├── main.py                 # Punto de entrada, routers, SPA serving
+│   ├── core/
+│   │   ├── config.py           # Configuración (Settings con pydantic-settings)
+│   │   └── security.py         # JWT + bcrypt, usuarios hardcodeados
+│   ├── db/
+│   │   ├── mongodb.py          # Conexión Motor async
+│   │   └── init_data.py        # Seed inicial: familia + catálogo de tareas
+│   ├── routers/                # Endpoints API (prefijo /api)
+│   │   ├── auth_router.py
+│   │   ├── catalog_router.py
+│   │   ├── task_router.py
+│   │   ├── reward_router.py
+│   │   ├── balance_router.py
+│   │   └── family_router.py
+│   ├── services/               # Lógica de negocio
+│   │   ├── task_service.py
+│   │   ├── reward_service.py
+│   │   └── balance_service.py
+│   ├── repositories/           # Acceso a datos MongoDB
+│   │   ├── task_repository.py
+│   │   ├── catalog_repository.py
+│   │   ├── reward_repository.py
+│   │   ├── family_repository.py
+│   │   └── transaction_repository.py
+│   └── schemas/                # Modelos Pydantic
+│       ├── task.py
+│       ├── catalog.py
+│       ├── reward.py
+│       ├── family.py
+│       └── transaction.py
+├── frontend/                   # Frontend React
+│   ├── src/
+│   │   ├── main.jsx
+│   │   ├── App.jsx             # Rutas React Router
+│   │   ├── index.css           # Tailwind + estilos globales
+│   │   ├── context/
+│   │   │   └── AuthContext.jsx # Estado global de auth
+│   │   ├── components/
+│   │   │   ├── Navbar.jsx
+│   │   │   ├── Modal.jsx
+│   │   │   ├── ProtectedRoute.jsx
+│   │   │   └── Starfield.jsx
+│   │   ├── pages/
+│   │   │   ├── LoginPage.jsx
+│   │   │   ├── kid/
+│   │   │   │   ├── Dashboard.jsx
+│   │   │   │   ├── Stars.jsx
+│   │   │   │   └── Rewards.jsx
+│   │   │   └── admin/
+│   │   │       ├── Dashboard.jsx
+│   │   │       ├── TaskCatalog.jsx
+│   │   │       ├── RewardsManager.jsx
+│   │   │       └── AdjustStars.jsx
+│   │   └── services/
+│   │       └── api.js          # Axios con baseURL /api
+│   ├── package.json
+│   ├── vite.config.js
+│   └── tailwind.config.js
+├── Dockerfile                  # Build multi-etapa (Python + Node)
+├── railway.json                # Configuración Railway (Dockerfile builder)
+├── requirements.txt
+└── .env.example
+```
+
+---
+
+## 🔌 API Endpoints
+
+Todos los endpoints tienen prefijo `/api`.
+
+```
+GET  /health                        Estado del servidor
+
+POST /api/auth/login                Login (form data: username, password)
+GET  /api/auth/me                   Usuario actual (requiere JWT)
+GET  /api/auth/users                Lista de usuarios (avatares)
+GET  /api/auth/config               family_id de la app
+
+GET  /api/catalog/                  Listar catálogo de tareas
+POST /api/catalog/                  Crear tarea en catálogo
+PATCH /api/catalog/{id}             Editar tarea
+DELETE /api/catalog/{id}            Eliminar tarea
+
+GET  /api/tasks/?user_id={id}       Tareas por usuario
+POST /api/tasks/                    Enviar tarea completada
+PATCH /api/tasks/{id}/approve       Aprobar tarea
+PATCH /api/tasks/{id}/reject        Rechazar tarea
+
+GET  /api/rewards/                  Listar recompensas
+POST /api/rewards/                  Crear recompensa
+PATCH /api/rewards/{id}             Editar recompensa
+DELETE /api/rewards/{id}            Eliminar recompensa
+POST /api/rewards/{id}/redeem       Canjear recompensa
+
+GET  /api/balance/{user_id}         Balance de estrellas
+GET  /api/balance/{user_id}/history Historial de transacciones
+POST /api/balance/{user_id}/adjust  Ajuste manual de estrellas (admin)
+
+GET  /api/families/{id}             Info de la familia
+```
+
+---
+
+## 🐳 Deploy en Railway
+
+El proyecto usa un `Dockerfile` que:
+1. Instala Node.js 20 sobre `python:3.12-slim`
+2. Instala dependencias Python (`pip install`)
+3. Instala dependencias Node (`npm install`)
+4. Buildea el frontend (`npm run build`)
+5. Copia el backend
+6. Arranca `uvicorn` que sirve la API **y** el frontend estático
+
+Variables de entorno requeridas en Railway:
+```
+MONGODB_URL    = mongodb+srv://...@cluster.mongodb.net/...
+DATABASE_NAME  = starlance
+SECRET_KEY     = (string aleatorio seguro)
+ENVIRONMENT    = production
+```
+
+---
+
+## 📄 Documentación técnica
+
+Ver [DOCUMENTACION.md](DOCUMENTACION.md) para el historial completo de desarrollo, decisiones de arquitectura y bugs resueltos.
+
+---
+
+**Versión:** 1.0.0 · **Fecha:** Junio 2026 · **Familia Mora Rivera**
