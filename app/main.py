@@ -20,7 +20,10 @@ FRONTEND_DIST = Path("frontend/dist")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    await mongodb.connect_to_mongo()
+    try:
+        await mongodb.connect_to_mongo()
+    except Exception as e:
+        print(f"[WARNING] connect_to_mongo failed: {e} — continuing startup")
     try:
         await init_app_data()
     except Exception as e:
