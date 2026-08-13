@@ -20,6 +20,8 @@ export default function AdminDashboard() {
   const [balances, setBalances] = useState({})
   const [loading, setLoading] = useState(true)
   const [actionLoading, setActionLoading] = useState({})
+  const [showApproveAll, setShowApproveAll] = useState(false)
+  const [approveAllLoading, setApproveAllLoading] = useState(false)
 
   const loadData = useCallback(async () => {
     try {
@@ -69,7 +71,31 @@ export default function AdminDashboard() {
     }
   }
 
+  const approveAll = async () => {
+    setApproveAllLoading(true)
+    try {
+      await Promise.all(
+        pendingTasks.map((t) => api.patch(`/tasks/${t.id}/approve`, { approver_id: user.id }))
+      )
+      setShowApproveAll(false)
+      loadData()
+    } catch (e) {
+      console.error(e)
+    } finally {
+      setApproveAllLoading(false)
+    }
+  }
+
   const kidInfo = (userId) => KIDS.find((k) => k.id === userId) || { name: userId, avatar: '👤' }
+
+  // Stars each kid would earn if all pending tasks approved
+  const starSummary = KIDS.map((k) => ({
+    ...k,
+    stars: pendingTasks
+      .filter((t) => t.assigned_to_id === k.id)
+      .reduce((sum, t) => sum + t.points, 0),
+    count: pendingTasks.filter((t) => t.assigned_to_id === k.id).length,
+  })).filter((k) => k.count > 0)
 
   return (
     <div className="min-h-screen bg-space-900">
@@ -95,11 +121,21 @@ export default function AdminDashboard() {
             <h2 className="font-display font-bold text-lg text-slate-200">
               ⏳ Pendientes de aprobación
             </h2>
-            {pendingTasks.length > 0 && (
-              <span className="bg-amber-500/20 text-amber-400 text-xs font-bold px-2 py-1 rounded-full border border-amber-500/30">
-                {pendingTasks.length}
-              </span>
-            )}
+            <div className="flex items-center gap-2">
+              {pendingTasks.length > 0 && (
+                <span className="bg-amber-500/20 text-amber-400 text-xs font-bold px-2 py-1 rounded-full border border-amber-500/30">
+                  {pendingTasks.length}
+                </span>
+              )}
+              {pendingTasks.length > 1 && (
+                <button
+                  onClick={() => setShowApproveAll(true)}
+                  className="btn-success text-xs py-1 px-3"
+                >
+                  ✅ Aprobar todo
+                </button>
+              )}
+            </div>
           </div>
 
           {loading ? (
@@ -159,6 +195,53 @@ export default function AdminDashboard() {
           )}
         </div>
       </main>
+
+      {/* Approve-all confirmation modal */}
+      {showApproveAll && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="card max-w-sm w-full space-y-4">
+            <div className="text-center">
+              <div className="text-4xl mb-2">✅</div>
+              <h3 className="font-display font-black text-xl text-white">Aprobar todo</h3>
+              <p className="text-slate-400 text-sm mt-1">
+                Se aprobarán <span className="text-amber-400 font-bold">{pendingTasks.length} tareas</span> y se sumarán las siguientes estrellas:
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              {starSummary.map((k) => (
+                <div key={k.id} className="flex items-center justify-between bg-space-900 rounded-xl px-4 py-3">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl">{k.avatar}</span>
+                    <div>
+                      <div className="font-bold text-slate-200 text-sm">{k.name}</div>
+                      <div className="text-slate-500 text-xs">{k.count} tarea{k.count !== 1 ? 's' : ''}</div>
+                    </div>
+                  </div>
+                  <div className="badge-stars text-sm">+⭐ {k.stars}</div>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex gap-3 pt-1">
+              <button
+                onClick={() => setShowApproveAll(false)}
+                disabled={approveAllLoading}
+                className="btn-secondary flex-1 py-2 disabled:opacity-50"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={approveAll}
+                disabled={approveAllLoading}
+                className="btn-success flex-1 py-2 disabled:opacity-50"
+              >
+                {approveAllLoading ? '⏳ Aprobando...' : '✅ Confirmar'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
