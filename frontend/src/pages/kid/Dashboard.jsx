@@ -3,8 +3,17 @@ import { useAuth } from '../../context/AuthContext'
 import Navbar from '../../components/Navbar'
 import api from '../../services/api'
 
-const TODAY = new Date().toISOString().slice(0, 10)
-const YESTERDAY = new Date(Date.now() - 86400000).toISOString().slice(0, 10)
+function localDateStr(offsetDays = 0) {
+  const d = new Date()
+  d.setDate(d.getDate() + offsetDays)
+  const y = d.getFullYear()
+  const m = String(d.getMonth() + 1).padStart(2, '0')
+  const day = String(d.getDate()).padStart(2, '0')
+  return `${y}-${m}-${day}`
+}
+
+const TODAY = localDateStr(0)
+const YESTERDAY = localDateStr(-1)
 
 function fmt(dateStr) {
   const [y, m, d] = dateStr.split('-')
